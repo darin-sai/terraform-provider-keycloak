@@ -1,10 +1,10 @@
 package provider
 
 import (
-	// "fmt"
+	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/mrparkers/terraform-provider-keycloak/keycloak"
-	// "strings"
+	"strings"
 )
 
 func resourceKeycloakAuthenticationFlow() *schema.Resource {
@@ -12,11 +12,11 @@ func resourceKeycloakAuthenticationFlow() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceKeycloakAuthenticationFlowCreate,
 		Read:   resourceKeycloakAuthenticationRead,
-		// Delete: resourceKeycloakFlowDelete,
-		// Update: resourceKeycloakFlowUpdate,
-		// Importer: &schema.ResourceImporter{
-		// 	State: resourceKeycloakFlowImport,
-		// },
+		Delete: resourceKeycloakAuthenticationDelete,
+		Update: resourceKeycloakAuthenticationUpdate,
+		Importer: &schema.ResourceImporter{
+			State: resourceKeycloakAuthenticationImport,
+		},
 		Schema: map[string]*schema.Schema{
 			"realm_id": {
 				Type:     schema.TypeString,
@@ -62,6 +62,46 @@ func resourceKeycloakAuthenticationRead(data *schema.ResourceData, meta interfac
 	}
 
 	return nil
+}
+
+func resourceKeycloakAuthenticationDelete(data *schema.ResourceData, meta interface{}) error {
+	keycloakClient := meta.(*keycloak.KeycloakClient)
+
+	realmId := data.Get("realm_id").(string)
+	id := data.Id()
+
+	return keycloakClient.DeleteAuthenticationFlow(realmId, id)
+}
+
+func resourceKeycloakAuthenticationUpdate(data *schema.ResourceData, meta interface{}) error {
+	keycloakClient := meta.(*keycloak.KeycloakClient)
+
+	flow := mapToAuthenticationFlowFromData(data)
+
+	err := keycloakClient.UpdateAuthenticationFlow(flow)
+	if err != nil {
+		return err
+	}
+
+	err = mapToDataFromAuthenticationFlow(data, flow)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func resourceKeycloakAuthenticationImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("Invalid import. Supported import formats: {{realmId}}/{{flowId}}")
+	}
+
+	d.Set("realm_id", parts[0])
+	d.SetId(parts[1])
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func mapToDataFromAuthenticationFlow(data *schema.ResourceData, flow *keycloak.AuthenticationFlow) error {

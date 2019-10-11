@@ -33,3 +33,11 @@ func (keycloakClient *KeycloakClient) NewAuthenticationFlow(flow *Authentication
 
 	return nil
 }
+
+func (keycloakClient *KeycloakClient) DeleteAuthenticationFlow(realmId, id string) error {
+	return keycloakClient.delete(fmt.Sprintf("/realms/%s/authentication/flows/%s", realmId, id), nil)
+}
+
+func (keycloakClient *KeycloakClient) UpdateAuthenticationFlow(flow *AuthenticationFlow) error {
+	return keycloakClient.put(fmt.Sprintf("/realms/%s/authentication/flows/%s", flow.RealmId, flow.Id), flow)
+}
