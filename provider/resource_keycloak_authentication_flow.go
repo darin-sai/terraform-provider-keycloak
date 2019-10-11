@@ -46,7 +46,7 @@ func resourceKeycloakAuthenticationFlowCreate(data *schema.ResourceData, meta in
 
 	data.SetId(flow.Id)
 
-	return resourceKeycloakSamlClientRead(data, meta)
+	return resourceKeycloakAuthenticationRead(data, meta)
 }
 
 func resourceKeycloakAuthenticationRead(data *schema.ResourceData, meta interface{}) error {

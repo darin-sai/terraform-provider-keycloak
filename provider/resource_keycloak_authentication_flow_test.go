@@ -23,7 +23,7 @@ func TestAccKeycloakAuthenticationFlow_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testKeycloakAuthenticationFlow_basic(realmName, alias),
-				Check:  testAccCheckKeycloakAuthenticationFlowExists("keycloak_authentication_flow.authentication_flow"),
+				Check:  resource.TestCheckResourceAttr("keycloak_authentication_flow.authentication_flow", "alias", alias),
 			},
 			{
 				ResourceName:        "keycloak_authentication_flow.authentication_flow",
@@ -35,20 +35,15 @@ func TestAccKeycloakAuthenticationFlow_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckKeycloakAuthenticationFlowExists(resourceName string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		flow, err := getAuthenticationFlowFromState(s, resourceName)
-		if err != nil {
-			return err
-		}
-
-		if flow.Alias != "something" {
-			return fmt.Errorf("expected flow to have alias of something, but got %s", flow.Alias)
-		}
-
-		return nil
-	}
-}
+// func testAccCheckKeycloakAuthenticationFlowExists(resourceName string) resource.TestCheckFunc {
+// 	return func(s *terraform.State) error {
+// 		_, err := getAuthenticationFlowFromState(s, resourceName)
+// 		if err != nil {
+// 			return err
+// 		}
+// 		return nil
+// 	}
+// }
 
 func getAuthenticationFlowFromState(s *terraform.State, resourceName string) (*keycloak.AuthenticationFlow, error) {
 	keycloakClient := testAccProvider.Meta().(*keycloak.KeycloakClient)
