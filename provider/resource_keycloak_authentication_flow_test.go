@@ -23,6 +23,9 @@ resource "keycloak_authentication_flow" "authentication_flow" {
 	realm_id  = "${keycloak_realm.realm.id}"
 	provider_id = "basic-flow"
 	alias = "some alias"
+	built_in = true
+	top_level = false
+	description = "Some kind of thing"
 }`, realmName)
 
 	resource.Test(t, resource.TestCase{
@@ -39,6 +42,44 @@ resource "keycloak_authentication_flow" "authentication_flow" {
 				ImportState:         true,
 				ImportStateVerify:   true,
 				ImportStateIdPrefix: realmName + "/",
+			},
+		},
+	})
+}
+
+func TestAccKeycloakAuthenticationFlow_updateRealm(t *testing.T) {
+	realmOne := "terraform-" + acctest.RandString(10)
+	realmTwo := "terraform-" + acctest.RandString(10)
+
+	template := `
+	resource "keycloak_realm" "realm_1" {
+		realm = "%s"
+	}
+	resource "keycloak_realm" "realm_2" {
+		realm = "%s"
+	}
+	
+	resource "keycloak_authentication_flow" "authentication_flow" {
+		realm_id  = "${keycloak_realm.%s.id}"
+		provider_id = "basic-flow"
+		alias = "some alias"
+	}`
+
+	initialConfig := fmt.Sprintf(template, realmOne, realmTwo, "realm_1")
+	updatedConfig := fmt.Sprintf(template, realmOne, realmTwo, "realm_2")
+
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		CheckDestroy: testAccCheckKeycloakAuthenticationFlowDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: initialConfig,
+				Check:  resource.TestCheckResourceAttr("keycloak_authentication_flow.authentication_flow", "realm_id", realmOne),
+			},
+			{
+				Config: updatedConfig,
+				Check:  resource.TestCheckResourceAttr("keycloak_authentication_flow.authentication_flow", "realm_id", realmTwo),
 			},
 		},
 	})

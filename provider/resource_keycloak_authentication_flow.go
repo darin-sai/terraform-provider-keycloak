@@ -21,6 +21,7 @@ func resourceKeycloakAuthenticationFlow() *schema.Resource {
 			"realm_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"alias": {
 				Type:     schema.TypeString,
@@ -29,6 +30,18 @@ func resourceKeycloakAuthenticationFlow() *schema.Resource {
 			"provider_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"built_in": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"top_level": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 		},
 	}

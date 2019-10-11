@@ -15,14 +15,12 @@ func (keycloakClient *KeycloakClient) GetAuthenticationFlow(realmId, id string) 
 	var flow AuthenticationFlow
 
 	url := fmt.Sprintf("/realms/%s/authentication/flows/%s", realmId, id)
-	fmt.Println(url)
 	err := keycloakClient.get(url, &flow, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	flow.RealmId = realmId
-	fmt.Println(flow.Id, flow.RealmId, flow.Alias)
 
 	return &flow, nil
 }
@@ -32,10 +30,8 @@ func (keycloakClient *KeycloakClient) NewAuthenticationFlow(flow *Authentication
 	if err != nil {
 		return err
 	}
-	fmt.Println(location)
 
 	flow.Id = getIdFromLocationHeader(location)
-	fmt.Println(flow.Id)
 
 	return nil
 }
