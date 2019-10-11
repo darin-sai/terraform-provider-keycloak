@@ -69,17 +69,17 @@ func getAuthenticationFlowFromState(s *terraform.State, resourceName string) (*k
 	return client, nil
 }
 
-func testKeycloakAuthenticationFlow_basic(realm, clientId string) string {
+func testKeycloakAuthenticationFlow_basic(realm, alias string) string {
 	return fmt.Sprintf(`
 resource "keycloak_realm" "realm" {
 	realm = "%s"
 }
 
 resource "keycloak_authentication_flow" "authentication_flow" {
-	client_id = "%s"
 	realm_id  = "${keycloak_realm.realm.id}"
+	alias = "%s"
 }
-	`, realm, clientId)
+	`, realm, alias)
 }
 
 func testAccCheckKeycloakAuthenticationFlowDestroy() resource.TestCheckFunc {
