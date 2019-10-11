@@ -2,8 +2,8 @@ package provider
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
+	// "strconv"
+	// "strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -80,4 +80,26 @@ resource "keycloak_authentication_flow" "authentication_flow" {
 	realm_id  = "${keycloak_realm.realm.id}"
 }
 	`, realm, clientId)
+}
+
+func testAccCheckKeycloakAuthenticationFlowDestroy() resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "keycloak_authentication_flow" {
+				continue
+			}
+
+			id := rs.Primary.ID
+			realm := rs.Primary.Attributes["realm_id"]
+
+			keycloakClient := testAccProvider.Meta().(*keycloak.KeycloakClient)
+
+			client, _ := keycloakClient.GetAuthenticationFlow(realm, id)
+			if client != nil {
+				return fmt.Errorf("authentication flow %s still exists", id)
+			}
+		}
+
+		return nil
+	}
 }
