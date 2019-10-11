@@ -77,6 +77,7 @@ resource "keycloak_realm" "realm" {
 
 resource "keycloak_authentication_flow" "authentication_flow" {
 	realm_id  = "${keycloak_realm.realm.id}"
+	provider_id = "basic-flow"
 	alias = "%s"
 }
 	`, realm, alias)

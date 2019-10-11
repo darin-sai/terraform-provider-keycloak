@@ -26,6 +26,10 @@ func resourceKeycloakAuthenticationFlow() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"provider_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
 		},
 	}
 }
@@ -108,15 +112,17 @@ func mapToDataFromAuthenticationFlow(data *schema.ResourceData, flow *keycloak.A
 	data.SetId(flow.Id)
 	data.Set("realm_id", flow.RealmId)
 	data.Set("alias", flow.Alias)
+	data.Set("provider_id", flow.ProviderId)
 
 	return nil
 }
 
 func mapToAuthenticationFlowFromData(data *schema.ResourceData) *keycloak.AuthenticationFlow {
 	flow := &keycloak.AuthenticationFlow{
-		Id:      data.Id(),
-		RealmId: data.Get("realm_id").(string),
-		Alias:   data.Get("alias").(string),
+		Id:         data.Id(),
+		RealmId:    data.Get("realm_id").(string),
+		Alias:      data.Get("alias").(string),
+		ProviderId: data.Get("provider_id").(string),
 	}
 
 	return flow

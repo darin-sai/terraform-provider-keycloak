@@ -5,9 +5,10 @@ import (
 )
 
 type AuthenticationFlow struct {
-	Id      string `json:"-"`
-	RealmId string `json:"-"`
-	Alias   string `json:"alias"`
+	Id         string `json:"-"`
+	RealmId    string `json:"-"`
+	Alias      string `json:"alias"`
+	ProviderId string `json:"providerId"`
 }
 
 func (keycloakClient *KeycloakClient) GetAuthenticationFlow(realmId, id string) (*AuthenticationFlow, error) {
