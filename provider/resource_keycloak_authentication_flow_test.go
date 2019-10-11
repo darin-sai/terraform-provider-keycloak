@@ -14,7 +14,7 @@ import (
 
 func TestAccKeycloakAuthenticationFlow_basic(t *testing.T) {
 	realmName := "terraform-" + acctest.RandString(10)
-	clientId := "terraform-" + acctest.RandString(10)
+	alias := "terraform-" + acctest.RandString(10)
 
 	resource.Test(t, resource.TestCase{
 		Providers:    testAccProviders,
@@ -22,7 +22,7 @@ func TestAccKeycloakAuthenticationFlow_basic(t *testing.T) {
 		CheckDestroy: testAccCheckKeycloakAuthenticationFlowDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testKeycloakAuthenticationFlow_basic(realmName, clientId),
+				Config: testKeycloakAuthenticationFlow_basic(realmName, alias),
 				Check:  testAccCheckKeycloakAuthenticationFlowExists("keycloak_authentication_flow.authentication_flow"),
 			},
 			{
