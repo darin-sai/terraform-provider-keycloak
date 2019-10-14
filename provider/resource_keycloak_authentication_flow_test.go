@@ -13,13 +13,13 @@ import (
 )
 
 func TestAccKeycloakAuthenticationFlow_basic(t *testing.T) {
-	realmName := "terraform-" + acctest.RandString(10)
+	realmName := "terraform-r-" + acctest.RandString(10)
 	config := fmt.Sprintf(`
 resource "keycloak_realm" "realm" {
 	realm = "%s"
 }
 
-resource "keycloak_authentication_flow" "authentication_flow" {
+resource "keycloak_authentication_flow" "flow" {
 	realm_id  = "${keycloak_realm.realm.id}"
 	provider_id = "basic-flow"
 	alias = "some alias"
@@ -35,7 +35,7 @@ resource "keycloak_authentication_flow" "authentication_flow" {
 		Steps: []resource.TestStep{
 			{
 				Config: config,
-				Check:  resource.TestCheckResourceAttr("keycloak_authentication_flow.authentication_flow", "alias", "some alias"),
+				Check:  testAccCheckKeycloakAuthenticationFlowExists("keycloak_authentication_flow.flow"),
 			},
 			{
 				ResourceName:        "keycloak_authentication_flow.authentication_flow",
@@ -48,8 +48,8 @@ resource "keycloak_authentication_flow" "authentication_flow" {
 }
 
 func TestAccKeycloakAuthenticationFlow_updateRealm(t *testing.T) {
-	realmOne := "terraform-" + acctest.RandString(10)
-	realmTwo := "terraform-" + acctest.RandString(10)
+	realmOne := "terraform-r-" + acctest.RandString(10)
+	realmTwo := "terraform-r-" + acctest.RandString(10)
 
 	template := `
 	resource "keycloak_realm" "realm_1" {
@@ -59,7 +59,7 @@ func TestAccKeycloakAuthenticationFlow_updateRealm(t *testing.T) {
 		realm = "%s"
 	}
 	
-	resource "keycloak_authentication_flow" "authentication_flow" {
+	resource "keycloak_authentication_flow" "flow" {
 		realm_id  = "${keycloak_realm.%s.id}"
 		provider_id = "basic-flow"
 		alias = "some alias"
@@ -75,58 +75,92 @@ func TestAccKeycloakAuthenticationFlow_updateRealm(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: initialConfig,
-				Check:  resource.TestCheckResourceAttr("keycloak_authentication_flow.authentication_flow", "realm_id", realmOne),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKeycloakAuthenticationFlowExists("keycloak_authentication_flow.flow"),
+					resource.TestCheckResourceAttr("keycloak_authentication_flow.authentication_flow", "realm_id", realmOne),
+				),
 			},
 			{
 				Config: updatedConfig,
-				Check:  resource.TestCheckResourceAttr("keycloak_authentication_flow.authentication_flow", "realm_id", realmTwo),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKeycloakAuthenticationFlowExists("keycloak_authentication_flow.flow"),
+					resource.TestCheckResourceAttr("keycloak_authentication_flow.authentication_flow", "realm_id", realmTwo),
+				),
 			},
 		},
 	})
 }
 
-// func testAccCheckKeycloakAuthenticationFlowExists(resourceName string) resource.TestCheckFunc {
-// 	return func(s *terraform.State) error {
-// 		_, err := getAuthenticationFlowFromState(s, resourceName)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		return nil
-// 	}
-// }
+func TestAccKeycloakAuthenticationFlow_updateAuthenticationFlow(t *testing.T) {
+	realmName := "terraform-r-" + acctest.RandString(10)
 
-// func getAuthenticationFlowFromState(s *terraform.State, resourceName string) (*keycloak.AuthenticationFlow, error) {
-// 	keycloakClient := testAccProvider.Meta().(*keycloak.KeycloakClient)
+	aliasOne := "terraform-flow-before-" + acctest.RandString(10)
+	aliasTwo := "terraform-flow-after-" + acctest.RandString(10)
 
-// 	rs, ok := s.RootModule().Resources[resourceName]
-// 	if !ok {
-// 		return nil, fmt.Errorf("resource not found: %s", resourceName)
-// 	}
+	template := `
+		resource "keycloak_realm" "realm" {
+			realm = "%s"
+		}
+		resource "keycloak_authentication_flow" "flow" {
+			realm_id = "${keycloak_realm.realm.id}"
+			alias    = "%s"
+		}`
 
-// 	id := rs.Primary.ID
-// 	realm := rs.Primary.Attributes["realm_id"]
+	initialConfig := fmt.Sprintf(template, realmName, aliasOne)
+	updatedConfig := fmt.Sprintf(template, realmName, aliasOne)
 
-// 	client, err := keycloakClient.GetAuthenticationFlow(realm, id)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("error getting flow %s: %s", id, err)
-// 	}
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		PreCheck:     func() { testAccPreCheck(t) },
+		CheckDestroy: testAccCheckKeycloakAuthenticationFlowDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: initialConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKeycloakAuthenticationFlowExists("keycloak_authentication_flow.flow"),
+					resource.TestCheckResourceAttr("keycloak_authentication_flow.flow", "alias", aliasOne),
+				),
+			},
+			{
+				Config: updatedConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKeycloakAuthenticationFlowExists("keycloak_authentication_flow.flow"),
+					resource.TestCheckResourceAttr("keycloak_authentication_flow.flow", "alias", aliasTwo),
+				),
+			},
+		},
+	})
+}
 
-// 	return client, nil
-// }
+func testAccCheckKeycloakAuthenticationFlowExists(resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		_, err := getAuthenticationFlowFromState(s, resourceName)
+		if err != nil {
+			return err
+		}
 
-// func testKeycloakAuthenticationFlow_basic(realm, alias string) string {
-// 	return fmt.Sprintf(`
-// resource "keycloak_realm" "realm" {
-// 	realm = "%s"
-// }
+		return nil
+	}
+}
 
-// resource "keycloak_authentication_flow" "authentication_flow" {
-// 	realm_id  = "${keycloak_realm.realm.id}"
-// 	provider_id = "basic-flow"
-// 	alias = "%s"
-// }
-// 	`, realm, alias)
-// }
+func getAuthenticationFlowFromState(s *terraform.State, resourceName string) (*keycloak.AuthenticationFlow, error) {
+	keycloakClient := testAccProvider.Meta().(*keycloak.KeycloakClient)
+
+	rs, ok := s.RootModule().Resources[resourceName]
+	if !ok {
+		return nil, fmt.Errorf("resource not found: %s", resourceName)
+	}
+
+	id := rs.Primary.ID
+	realm := rs.Primary.Attributes["realm_id"]
+
+	flow, err := keycloakClient.GetAuthenticationFlow(realm, id)
+	if err != nil {
+		return nil, fmt.Errorf("error getting authentication flow with id %s: %s", id, err)
+	}
+
+	return flow, nil
+}
 
 func testAccCheckKeycloakAuthenticationFlowDestroy() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
