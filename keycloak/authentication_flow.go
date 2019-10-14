@@ -11,10 +11,11 @@ type AuthenticationFlow struct {
 	Description string `json:"description"`
 	ProviderId  string `json:"providerId"` // "basic-flow" or "client-flow"
 	TopLevel    bool   `json:"topLevel"`
-	BuiltIn     bool   `json:"builtIn"`
+	BuiltIn     bool   `json:"builtIn"` // this controls whether or not this flow can be edited from the console. it can be updated, but this provider will only set it to `true`
 }
 
 func (keycloakClient *KeycloakClient) NewAuthenticationFlow(authenticationFlow *AuthenticationFlow) error {
+	// TODO: test these defaults
 	authenticationFlow.TopLevel = true
 	authenticationFlow.BuiltIn = false
 
@@ -39,6 +40,7 @@ func (keycloakClient *KeycloakClient) GetAuthenticationFlow(realmId, id string) 
 }
 
 func (keycloakClient *KeycloakClient) UpdateAuthenticationFlow(authenticationFlow *AuthenticationFlow) error {
+	// TODO: test these overwrites
 	authenticationFlow.TopLevel = true
 	authenticationFlow.BuiltIn = false
 
@@ -47,6 +49,7 @@ func (keycloakClient *KeycloakClient) UpdateAuthenticationFlow(authenticationFlo
 
 func (keycloakClient *KeycloakClient) DeleteAuthenticationFlow(realmId, id string) error {
 	err := keycloakClient.delete(fmt.Sprintf("/realms/%s/authentication/flows/%s", realmId, id), nil)
+	// TODO: test this retry
 	if err != nil {
 		// For whatever reason, this fails sometimes with a 500 during acceptance tests. try again
 		return keycloakClient.delete(fmt.Sprintf("/realms/%s/authentication/flows/%s", realmId, id), nil)

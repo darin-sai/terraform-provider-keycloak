@@ -32,7 +32,7 @@ type AuthenticationExecution struct {
 	Requirement          string `json:"requirement"`
 }
 
-// another model is used for GET /realms/${realmId}/authentication/executions/${executionId}, but I am going to try to avoid using this API
+// another model is used for GET /realms/${realmId}/authentication/executions/${executionId}, but lets try to avoid using this API
 type AuthenticationExecutionInfo struct {
 	Id                   string `json:"id"`
 	RealmId              string `json:"-"`

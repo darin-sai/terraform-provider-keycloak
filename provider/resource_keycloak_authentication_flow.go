@@ -41,26 +41,6 @@ func resourceKeycloakAuthenticationFlow() *schema.Resource {
 	}
 }
 
-func mapFromDataToAuthenticationFlow(data *schema.ResourceData) *keycloak.AuthenticationFlow {
-	authenticationFlow := &keycloak.AuthenticationFlow{
-		Id:          data.Id(),
-		RealmId:     data.Get("realm_id").(string),
-		Alias:       data.Get("alias").(string),
-		ProviderId:  data.Get("provider_id").(string),
-		Description: data.Get("description").(string),
-	}
-
-	return authenticationFlow
-}
-
-func mapFromAuthenticationFlowToData(data *schema.ResourceData, authenticationFlow *keycloak.AuthenticationFlow) {
-	data.SetId(authenticationFlow.Id)
-	data.Set("realm_id", authenticationFlow.RealmId)
-	data.Set("alias", authenticationFlow.Alias)
-	data.Set("provider_id", authenticationFlow.ProviderId)
-	data.Set("description", authenticationFlow.Description)
-}
-
 func resourceKeycloakAuthenticationFlowCreate(data *schema.ResourceData, meta interface{}) error {
 	keycloakClient := meta.(*keycloak.KeycloakClient)
 
@@ -124,4 +104,24 @@ func resourceKeycloakAuthenticationFlowImport(d *schema.ResourceData, _ interfac
 	d.SetId(parts[1])
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func mapFromDataToAuthenticationFlow(data *schema.ResourceData) *keycloak.AuthenticationFlow {
+	authenticationFlow := &keycloak.AuthenticationFlow{
+		Id:          data.Id(),
+		RealmId:     data.Get("realm_id").(string),
+		Alias:       data.Get("alias").(string),
+		ProviderId:  data.Get("provider_id").(string),
+		Description: data.Get("description").(string),
+	}
+
+	return authenticationFlow
+}
+
+func mapFromAuthenticationFlowToData(data *schema.ResourceData, authenticationFlow *keycloak.AuthenticationFlow) {
+	data.SetId(authenticationFlow.Id)
+	data.Set("realm_id", authenticationFlow.RealmId)
+	data.Set("alias", authenticationFlow.Alias)
+	data.Set("provider_id", authenticationFlow.ProviderId)
+	data.Set("description", authenticationFlow.Description)
 }

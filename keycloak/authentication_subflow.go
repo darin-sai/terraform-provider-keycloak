@@ -15,16 +15,16 @@ type AuthenticationSubFlow struct {
 	BuiltIn         bool   `json:"builtIn"`    // this controls whether or not this flow can be edited from the console. it can be updated, but this provider will only set it to `true`
 	Description     string `json:"description"`
 	//execution part
-	Authenticator string `json:"-"` //can be any authenticator see /auth/admin/master/console/#/server-info/providers (not limited to the authenticator spi section) for example could also be part of the form-action spi
+	Authenticator string `json:"-"` // can be any authenticator see /auth/admin/master/console/#/server-info/providers (not limited to the authenticator spi section) for example could also be part of the form-action spi
 	Priority      int    `json:"-"`
 	Requirement   string `json:"-"`
 }
 
-//each subflow creates a flow and an execution under the covers
+// each subflow creates a flow and an execution under the covers
 type authenticationSubFlowCreate struct {
 	Alias       string `json:"alias"`
-	Type        string `json:"type"`     //providerId of the flow
-	Provider    string `json:"provider"` //authenticator of the execution
+	Type        string `json:"type"`     // providerId of the flow
+	Provider    string `json:"provider"` // authenticator of the execution
 	Description string `json:"description"`
 }
 
@@ -33,8 +33,8 @@ func (keycloakClient *KeycloakClient) NewAuthenticationSubFlow(authenticationSub
 	authenticationSubFlow.BuiltIn = false
 	authenticationSubFlowCreate := &authenticationSubFlowCreate{
 		Alias:       authenticationSubFlow.Alias,
-		Type:        authenticationSubFlow.ProviderId,    //providerId of the flow
-		Provider:    authenticationSubFlow.Authenticator, //seems this can be empty //authenticator of the execution
+		Type:        authenticationSubFlow.ProviderId,    // providerId of the flow
+		Provider:    authenticationSubFlow.Authenticator, // authenticator of the execution, seems this can be empty
 		Description: authenticationSubFlow.Description,
 	}
 
@@ -108,7 +108,7 @@ func (keycloakClient *KeycloakClient) UpdateAuthenticationSubFlow(authentication
 		return err
 	}
 
-	//update requirement
+	// update requirement
 	authenticationExecutionUpdateRequirement := &authenticationExecutionRequirementUpdate{
 		RealmId:         authenticationSubFlow.RealmId,
 		ParentFlowAlias: authenticationSubFlow.ParentFlowAlias,
