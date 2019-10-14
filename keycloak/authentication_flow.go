@@ -19,6 +19,7 @@ func (keycloakClient *KeycloakClient) NewAuthenticationFlow(authenticationFlow *
 	authenticationFlow.TopLevel = true
 	authenticationFlow.BuiltIn = false
 
+	// TODO: this is supposed to be the realm name, not id, according to https://www.keycloak.org/docs-api/6.0/rest-api/index.html#_authentication_management_resource
 	_, location, err := keycloakClient.post(fmt.Sprintf("/realms/%s/authentication/flows", authenticationFlow.RealmId), authenticationFlow)
 	if err != nil {
 		return err
@@ -30,6 +31,7 @@ func (keycloakClient *KeycloakClient) NewAuthenticationFlow(authenticationFlow *
 
 func (keycloakClient *KeycloakClient) GetAuthenticationFlow(realmId, id string) (*AuthenticationFlow, error) {
 	var authenticationFlow AuthenticationFlow
+	// TODO: this is supposed to be the realm name, not id, according to https://www.keycloak.org/docs-api/6.0/rest-api/index.html#_authentication_management_resource
 	err := keycloakClient.get(fmt.Sprintf("/realms/%s/authentication/flows/%s", realmId, id), &authenticationFlow, nil)
 	if err != nil {
 		return nil, err
@@ -44,10 +46,12 @@ func (keycloakClient *KeycloakClient) UpdateAuthenticationFlow(authenticationFlo
 	authenticationFlow.TopLevel = true
 	authenticationFlow.BuiltIn = false
 
+	// TODO: this is supposed to be the realm name, not id, according to https://www.keycloak.org/docs-api/6.0/rest-api/index.html#_authentication_management_resource
 	return keycloakClient.put(fmt.Sprintf("/realms/%s/authentication/flows/%s", authenticationFlow.RealmId, authenticationFlow.Id), authenticationFlow)
 }
 
 func (keycloakClient *KeycloakClient) DeleteAuthenticationFlow(realmId, id string) error {
+	// TODO: this is supposed to be the realm name, not id, according to https://www.keycloak.org/docs-api/6.0/rest-api/index.html#_authentication_management_resource
 	err := keycloakClient.delete(fmt.Sprintf("/realms/%s/authentication/flows/%s", realmId, id), nil)
 	// TODO: test this retry
 	if err != nil {
