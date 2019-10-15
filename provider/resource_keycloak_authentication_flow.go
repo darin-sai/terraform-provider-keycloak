@@ -168,8 +168,10 @@ func mapToDataFromAuthenticationFlow(data *schema.ResourceData, flow *keycloak.A
 	data.Set("built_in", flow.BuiltIn)
 	data.Set("top_level", flow.TopLevel)
 
-	data.Set("authentication_execution.#", len(flow.AuthenticationExecutions))
-	for i := 0; i < len(flow.AuthenticationExecutions); i++ {
+	executionCount := len(flow.AuthenticationExecutions)
+	fmt.Println("Return trip exec count", executionCount)
+	data.Set("authentication_execution.#", executionCount)
+	for i := 0; i < executionCount; i++ {
 		prefix := fmt.Sprintf(`authentication_execution.%d.`, i)
 		data.Set(prefix+"authenticator", flow.AuthenticationExecutions[i].Authenticator)
 		data.Set(prefix+"priority", flow.AuthenticationExecutions[i].Priority)
