@@ -5,10 +5,23 @@ import (
 )
 
 type AuthenticationFlow struct {
-	Id         string `json:"id,omitempty"`
-	RealmId    string `json:"-"`
-	Alias      string `json:"alias"`
-	ProviderId string `json:"providerId"`
+	Id                       string                    `json:"id,omitempty"`
+	RealmId                  string                    `json:"-"`
+	Alias                    string                    `json:"alias"`
+	ProviderId               string                    `json:"providerId"`
+	Description              string                    `json:"description"`
+	TopLevel                 bool                      `json:"topLevel"`
+	BuiltIn                  bool                      `json:"builtIn"`
+	AuthenticationExecutions []AuthenticationExecution `json:"authenticationExecutions"`
+}
+
+type AuthenticationExecution struct {
+	Authenticator       string            `json:"authenticator"`
+	AuthenticatorConfig map[string]string `json:"authenticatorConfig"`
+	Priority            int               `json:"priority"`
+	Requirement         string            `json:"requirement"`
+	UserSetupAllowed    bool              `json:"userSetupAllowed"`
+	AutheticatorFlow    bool              `json:"autheticatorFlow"`
 }
 
 func (keycloakClient *KeycloakClient) GetAuthenticationFlow(realmId, id string) (*AuthenticationFlow, error) {

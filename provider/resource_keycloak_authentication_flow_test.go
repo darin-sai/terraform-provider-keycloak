@@ -23,9 +23,14 @@ resource "keycloak_authentication_flow" "flow" {
 	realm_id  = "${keycloak_realm.realm.id}"
 	provider_id = "basic-flow"
 	alias = "some alias"
-	built_in = true
-	top_level = false
 	description = "Some kind of thing"
+	authentication_execution {
+		authenticator      = "auth-cookie"
+		requirement        = "ALTERNATIVE"
+        priority           = 10
+        user_setup_allowed = false
+        autheticator_flow  = false
+	}
 }`, realmName)
 
 	resource.Test(t, resource.TestCase{
@@ -38,7 +43,7 @@ resource "keycloak_authentication_flow" "flow" {
 				Check:  testAccCheckKeycloakAuthenticationFlowExists("keycloak_authentication_flow.flow"),
 			},
 			{
-				ResourceName:        "keycloak_authentication_flow.authentication_flow",
+				ResourceName:        "keycloak_authentication_flow.flow",
 				ImportState:         true,
 				ImportStateVerify:   true,
 				ImportStateIdPrefix: realmName + "/",
@@ -58,7 +63,7 @@ func TestAccKeycloakAuthenticationFlow_updateRealm(t *testing.T) {
 	resource "keycloak_realm" "realm_2" {
 		realm = "%s"
 	}
-	
+
 	resource "keycloak_authentication_flow" "flow" {
 		realm_id  = "${keycloak_realm.%s.id}"
 		provider_id = "basic-flow"
@@ -77,14 +82,14 @@ func TestAccKeycloakAuthenticationFlow_updateRealm(t *testing.T) {
 				Config: initialConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKeycloakAuthenticationFlowExists("keycloak_authentication_flow.flow"),
-					resource.TestCheckResourceAttr("keycloak_authentication_flow.authentication_flow", "realm_id", realmOne),
+					resource.TestCheckResourceAttr("keycloak_authentication_flow.flow", "realm_id", realmOne),
 				),
 			},
 			{
 				Config: updatedConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKeycloakAuthenticationFlowExists("keycloak_authentication_flow.flow"),
-					resource.TestCheckResourceAttr("keycloak_authentication_flow.authentication_flow", "realm_id", realmTwo),
+					resource.TestCheckResourceAttr("keycloak_authentication_flow.flow", "realm_id", realmTwo),
 				),
 			},
 		},
@@ -103,6 +108,7 @@ func TestAccKeycloakAuthenticationFlow_updateAuthenticationFlow(t *testing.T) {
 		}
 		resource "keycloak_authentication_flow" "flow" {
 			realm_id = "${keycloak_realm.realm.id}"
+			provider_id = "basic-flow"
 			alias    = "%s"
 		}`
 
